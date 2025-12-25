@@ -40,7 +40,7 @@ class MovieAdapter :
             VIEW_POPULAR -> PopularMovieViewHolder(
                 ItemListPopularMovieBinding.inflate(
                     layoutInflater
-                )
+                ), onItemClick
             )
 
             VIEW_TOP_RATE -> TopRateMovieViewHolder(ItemTopRateMovieBinding.inflate(layoutInflater), onItemClick)
@@ -58,10 +58,13 @@ class MovieAdapter :
         }
     }
 
-    class PopularMovieViewHolder(private val binding: ItemListPopularMovieBinding) :
+    class PopularMovieViewHolder(
+        private val binding: ItemListPopularMovieBinding,
+        onItemClick: (Int?) -> Unit
+    ) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private val popularAdapter = PopularMovieAdapter()
+        private val popularAdapter = PopularMovieAdapter(onItemClick)
 
         init {
             binding.listMovie.apply {

@@ -2,7 +2,6 @@ package com.example.painview.ui.movie
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,7 +49,6 @@ class MoviesFragment : Fragment() {
         }
         movieAdapter.onItemClick = {
             findNavController().navigate("app://detail/$it".toUri())
-            Log.d("Movie", "id = $it")
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
