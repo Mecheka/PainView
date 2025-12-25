@@ -1,6 +1,7 @@
 package com.example.painview.ui.movie
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,15 +38,15 @@ import com.example.painview.ui.theme.PainViewTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MoviesScreen(viewModel: MoviesViewModel = koinViewModel()) {
+fun MoviesScreen(viewModel: MoviesViewModel = koinViewModel(), onItemClick: (Int) -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    MoviesScreen(state)
+    MoviesScreen(state, onItemClick)
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-private fun MoviesScreen(state: CommonState<MovieViewType>) {
+private fun MoviesScreen(state: CommonState<MovieViewType>, onItemClick: (Int) -> Unit) {
     Scaffold {
         when (state) {
             is CommonState.Error -> {
@@ -74,13 +75,13 @@ private fun MoviesScreen(state: CommonState<MovieViewType>) {
                     ) {
                         if (state.data.popular.isNotEmpty()) {
                             item {
-                                PopularMoviesItems(state)
+                                PopularMoviesItems(state, onItemClick)
                             }
                         }
 
                         if (state.data.topRate.isNotEmpty()) {
                             items(state.data.topRate, key = { it.id!! }) {
-                                TopRateMovieItem(it)
+                                TopRateMovieItem(it, onItemClick)
                             }
                         }
                     }
@@ -93,11 +94,46 @@ private fun MoviesScreen(state: CommonState<MovieViewType>) {
 
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)
-private fun TopRateMovieItem(movie: MovieResultResponse) {
+private fun PopularMoviesItems(
+    state: CommonState.Success<MovieViewType>,
+    onItemClick: (Int) -> Unit
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(
+            state.data.popular,
+            key = { it.id!! }) {
+            Column(modifier = Modifier.clickable {
+                onItemClick(it.id!!)
+            }) {
+                GlideImage(
+                    model = "${Constance.IMAGE_BACK_DROP}${it.backdropPath.orEmpty()}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .height(180.dp)
+                        .aspectRatio(16f / 9f),
+                    contentDescription = null
+                )
+                Text(it.title.orEmpty(), modifier = Modifier.padding(top = 8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalGlideComposeApi::class)
+private fun TopRateMovieItem(movie: MovieResultResponse, onItemClick: (Int) -> Unit) {
     Row(
         Modifier
             .padding(horizontal = 16.dp)
             .fillMaxSize()
+            .clickable {
+                onItemClick(movie.id!!)
+            }
     ) {
         GlideImage(
             model = "${Constance.IMAGE_BACK_DROP}${movie.backdropPath.orEmpty()}",
@@ -116,33 +152,6 @@ private fun TopRateMovieItem(movie: MovieResultResponse) {
 }
 
 @Composable
-@OptIn(ExperimentalGlideComposeApi::class)
-private fun PopularMoviesItems(state: CommonState.Success<MovieViewType>) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        items(
-            state.data.popular,
-            key = { it.id!! }) {
-            Column {
-                GlideImage(
-                    model = "${Constance.IMAGE_BACK_DROP}${it.backdropPath.orEmpty()}",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .height(180.dp)
-                        .aspectRatio(16f / 9f),
-                    contentDescription = null
-                )
-                Text(it.title.orEmpty(), modifier = Modifier.padding(top = 8.dp))
-            }
-        }
-    }
-}
-
-@Composable
 @Preview(showBackground = true)
 private fun PreviewTopRateItem() {
     PainViewTheme {
@@ -151,6 +160,6 @@ private fun PreviewTopRateItem() {
                 title = "Title",
                 backdropPath = "/84h6avqHvW2TgLfERuqYkQwzjp1.jpg"
             )
-        )
+        ) {}
     }
 }
