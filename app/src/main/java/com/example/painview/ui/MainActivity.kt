@@ -1,4 +1,4 @@
-package com.example.painview
+package com.example.painview.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -41,7 +41,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    PainViewTheme {
+    _root_ide_package_.com.example.painview.ui.theme.PainViewTheme {
         Greeting("Android")
     }
 }
